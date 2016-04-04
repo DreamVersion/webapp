@@ -1,13 +1,15 @@
 # coding=utf-8
+
 from django.shortcuts import render, get_object_or_404
 from django.http import HttpResponseRedirect, HttpResponse
 from django.utils.http import urlquote
 from .models import WDJ
 from django.core.urlresolvers import reverse
 from django.utils import timezone
-import urllib
+import urllib,urllib2,httplib
 import json
-
+import gzip
+import StringIO
 # Create your views here.
 
 usable_urls = {
@@ -21,6 +23,21 @@ usable_urls = {
         "tops":("http://startpage.wandoujia.com/five/v3/tabs/tops?pos=m/tops",u"排行榜")
                }
 
+def findUrlGzip(url):
+    request = urllib2.Request(url)
+    request.add_header('Accept-encoding', 'gzip')
+    opener = urllib2.build_opener()
+    f = opener.open(request)
+    isGzip = f.headers.get('Content-Encoding')
+    #print isGzip
+    if isGzip :
+        compresseddata = f.read()
+        compressedstream = StringIO.StringIO(compresseddata)
+        gzipper = gzip.GzipFile(fileobj=compressedstream)
+        data = gzipper.read()
+    else:
+        data = f.read()
+    return data
 
 def index(request):
     if request.GET.has_key('message'):
@@ -80,12 +97,27 @@ def fun(request):
 
 def generate_func_json(request):
 
-    target = request.GET['target']
+    app_ids = request.POST.getlist('app')
+    apps =[json.loads(app.package_content) for app in WDJ.objects.filter(pk__in=app_ids) ]
 
-    all_app_list = []
-    for (k,v) in request.GET.items():
-        all_app_list.append(v)
+    target = request.POST['target']
 
-    WDJ.objects.filter(all_app_list)
 
-    return HttpResponse(all_app_list)
+    result_html = findUrlGzip(target)
+
+    result_json = json.loads(result_html)
+
+    #repalce
+    entities = result_json['entity']
+    i = 0
+    app_size = len(apps)
+
+    for entity in entities:
+        if entity.has_key('title'):
+            for key in entity:
+                if apps[i % app_size].has_key(key):
+                    entity[key] = apps[i % app_size][key]
+            i+=1
+    function = json.dumps(result_json)
+
+    return render(request, "wdj/index.html", {"message":function})

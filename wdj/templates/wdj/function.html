@@ -4,21 +4,21 @@
 <head>
     <title>{{ func }}</title>
 </head>
-<body>
-{{ target }}
-<br>
-<form action="{% url 'wdj:generate' %}" method="get">
-<table>
-{% for app in apps %}
-    <tr>
-        <td><input type="checkbox" name="chosenApp{{ forloop.counter }}" value="{{ app.package_id }}"></td>
-        <td>{{ app.package_name }}</td>
-        <td>{{ app.package_id }}</td>
-    </tr>
 
-{% endfor %}
-</table>
-    <input type="submit" value="确定">
+<body>
+<form action="{% url 'wdj:generate' %}" method="post">
+    {% csrf_token %}
+    <table name="app">
+        {% for app in apps%}
+        <tr>
+            <td><input type="checkbox" name="app" value="{{ app.package_id }}"></td>
+            <td>{{ app.package_name }}</td>
+            <td>{{ app.package_id }}</td>
+        </tr>
+        {% endfor %}
+    </table>
+    <input type="hidden" name="target" value="{{ target }}">
+    <input type="submit" value="Submit">
 </form>
 </body>
 </html>
