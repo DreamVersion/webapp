@@ -1,0 +1,23 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+        "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+    <title>Json Tools</title>
+    <script language="JavaScript">
+    function chooseMarket(){
+        var str1 = document.getElementById("sel").value;
+
+        window.location.href = str1
+    }
+    </script>
+</head>
+<body>
+<label>选择应用市场</label>
+
+<select name="select" id="sel">
+    <option value="wdj">豌豆荚</option>
+</select>
+
+<input type="submit" value="前往" onclick="chooseMarket()">
+</body>
+</html>

@@ -1,0 +1,21 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+        "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+    <title>Detail</title>
+</head>
+<body>
+<form action="{% url 'wdj:result' %}" method="post">
+{% csrf_token %}
+{% for app in apps %}
+    <label>{{ forloop.counter }}. </label>
+    <img src="{{ app.icon }}" alt="Loading" width="64" height="64">
+    <label for="app{{ forloop.counter }}">{{ app.title }}</label>
+    <input type="radio" name="app" id="app{{ forloop.counter }}" value="{{ app }}"/>
+
+<div />
+{% endfor %}
+<input type="submit" value="Submit">
+</form>
+</body>
+</html>

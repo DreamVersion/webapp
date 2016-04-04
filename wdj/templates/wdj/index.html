@@ -1,0 +1,40 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+        "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+    <title>豌 豆 荚</title>
+    <script language="JavaScript">
+    function chooseFunction(){
+        var str1 = document.getElementById("sel").value;
+
+        window.location.href = "?target="+str1
+    }
+    </script>
+</head>
+<body>
+
+{% if message %}<p><strong>{{ message }}</strong></p>{% endif %}
+
+<form name="search" action="{% url 'wdj:search' %}" method="get">
+搜索应用:
+<input type="text" name="name" />
+<input type="submit" value="Submit" />
+</form>
+
+<br>
+<form action="{% url 'wdj:function'%}" method="get">
+    <label>选择功能:</label>
+    <select name="target" id="sel">
+        <option value="explore">推荐</option>
+        <option value="nux">必备</option>
+        <option value="apps">应用</option>
+        <option value="games">游戏</option>
+        <option value="newgame">新游戏</option>
+        <option value="tops">排行榜</option>
+    </select>
+
+<input type="submit" value="前往">
+</form>
+
+</body>
+</html>
