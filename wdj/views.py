@@ -3,6 +3,7 @@
 from django.shortcuts import render, get_object_or_404
 from django.http import HttpResponseRedirect, HttpResponse
 from django.utils.http import urlquote
+from django.conf import settings
 from .models import WDJ
 from django.core.urlresolvers import reverse
 from django.utils import timezone
@@ -10,17 +11,19 @@ import urllib,urllib2,httplib
 import json
 import gzip
 import StringIO
+import os
+
 # Create your views here.
 
 usable_urls = {
-        "search":("http://ias.wandoujia.com/api/v3/search?query=%s",u"搜索"),
-        "single":("http://apis.wandoujia.com/five/v2/apps/%s",u"App"),
-        "explore":("http://startpage.wandoujia.com/five/v3/tabs/explore?pos=m/explore",u"推荐"),
-        "nux":("http://startpage.wandoujia.com/five/v3/tabs/nux?pos=m/essential",u"必备"),
-        "apps":("http://startpage.wandoujia.com/five/v3/tabs/apps?pos=m/apps/explore",u"应用"),
-        "games":("http://startpage.wandoujia.com/five/v3/tabs/games?pos=m/games/explore",u"游戏"),
-        "newgame":("http://startpage.wandoujia.com/five/v3/tabs/newgame?pos=m/tabs/newgame",u"新游戏"),
-        "tops":("http://startpage.wandoujia.com/five/v3/tabs/tops?pos=m/tops",u"排行榜")
+        "search":("http://ias.wandoujia.com/api/v3/search?query=%s","Search"),
+        "single":("http://apis.wandoujia.com/five/v2/apps/%s","SingleApp"),
+        "explore":("http://startpage.wandoujia.com/five/v3/tabs/explore?pos=m/explore","recommend"),
+        "nux":("http://startpage.wandoujia.com/five/v3/tabs/nux?pos=m/essential","essential"),
+        "apps":("http://startpage.wandoujia.com/five/v3/tabs/apps?pos=m/apps/explore","apps"),
+        "games":("http://startpage.wandoujia.com/five/v3/tabs/games?pos=m/games/explore","games"),
+        "newgame":("http://startpage.wandoujia.com/five/v3/tabs/newgame?pos=m/tabs/newgame","newgame"),
+        "tops":("http://startpage.wandoujia.com/five/v3/tabs/tops?pos=m/tops","tops")
                }
 
 def findUrlGzip(url):
@@ -102,6 +105,7 @@ def generate_func_json(request):
 
     target = request.POST['target']
 
+    func_name = request.POST['func']
 
     result_html = findUrlGzip(target)
 
@@ -119,5 +123,9 @@ def generate_func_json(request):
                     entity[key] = apps[i % app_size][key]
             i+=1
     function = json.dumps(result_json)
+    func_filename = os.path.join(settings.BASE_DIR,"json/wdj/"+func_name)
 
-    return render(request, "wdj/index.html", {"message":function})
+    with open(func_filename,'w') as json_file:
+        json_file.write(function)
+
+    return HttpResponseRedirect(reverse('wdj:index')+"?message=Save %s successfully"%func_filename)
